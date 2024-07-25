@@ -29,7 +29,7 @@ class TaskItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final formattedDeadline = DateFormat('dd.MM.yyyy').format(deadline);
+    final formattedDeadline = DateFormat('dd.MM.yy HH:mm').format(deadline);
 
     return Card(
       child: Column(
