@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../screens/profile_page.dart';
 import '../theme/theme.dart';
 
 class MainPage extends StatefulWidget {
@@ -14,7 +15,6 @@ class _MainPageState extends State<MainPage> {
   static const List<Widget> _widgetOptions = <Widget>[
     Text('Задачи'),
     Text('Сегодня'),
-    Text('Профиль'),
     Text('Выполнено'),
   ];
 
@@ -45,7 +45,9 @@ class _MainPageState extends State<MainPage> {
           ),
         ),
         child: Center(
-          child: _widgetOptions.elementAt(_selectedIndex),
+          child: _selectedIndex == 3 // Проверяем, выбран ли профиль
+              ? const ProfilePage() // Если да, отображаем profile_page
+              : _widgetOptions.elementAt(_selectedIndex),
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -59,12 +61,12 @@ class _MainPageState extends State<MainPage> {
             label: 'Сегодня',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Профиль',
-          ),
-          BottomNavigationBarItem(
             icon: Icon(Icons.check_circle),
             label: 'Выполнено',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Профиль',
           ),
         ],
         currentIndex: _selectedIndex,
