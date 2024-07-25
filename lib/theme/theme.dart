@@ -17,5 +17,13 @@ class DoDidDoneTheme {
         ),
       ),
     ),
+    bottomNavigationBarTheme: BottomNavigationBarThemeData(
+      selectedItemColor: const Color(0xFF9f7bf6), // Цвет выбранной иконки
+      unselectedItemColor:
+          const Color(0xFF4ceb8b).withOpacity(0.5), // Цвет невыбранной иконки
+      backgroundColor: Colors.transparent, // Прозрачный фон
+      // Убираем тень
+      // Добавляем тему для BottomNavigationBar
+    ),
   );
 }
