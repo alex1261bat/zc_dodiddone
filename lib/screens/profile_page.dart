@@ -23,6 +23,7 @@ class _ProfilePageState extends State<ProfilePage> {
             backgroundImage: AssetImage(
                 'assets/profile.png'), // Замените на реальный путь к аватару
           ),
+        
           const SizedBox(height: 20),
           // Почта
           Text(
