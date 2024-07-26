@@ -42,7 +42,7 @@ class _LoginPageState extends State<LoginPage> {
                 children: [
                   Image.asset(
                     'assets/zc_logo.png', // Замените на правильный путь к файлу
-                    height: 60, // Устанавливаем высоту изображения
+                    height: 52, // Устанавливаем высоту изображения
                   ),
                   const SizedBox(width: 8),
                   // Добавляем текст "zerocoder"
