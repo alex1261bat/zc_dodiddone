@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../pages/login_page.dart';
+import '../services/firebase_auth.dart'; // Импортируем AuthenticationService
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
@@ -8,7 +9,18 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  bool isEmailVerified = false; // Флаг для проверки подтверждения почты
+  final AuthService _authService = AuthService(); // Создаем экземпляр сервиса
+  String? _userEmail;
+  String? _userPhotoUrl;
+
+  @override
+  void initState() {
+    super.initState();
+    // Получаем данные пользователя при инициализации
+    _userEmail = _authService.currentUser?.email;
+    _userPhotoUrl = _authService.currentUser?.photoURL;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -18,48 +30,71 @@ class _ProfilePageState extends State<ProfilePage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           // Аватар
-          const CircleAvatar(
+          CircleAvatar(
             radius: 50,
-            backgroundImage: AssetImage(
-                'assets/profile.png'), // Замените на реальный путь к аватару
+            backgroundImage: _userPhotoUrl != null
+                ? NetworkImage(_userPhotoUrl!)
+                : const AssetImage('assets/profile.png'),
           ),
-        
           const SizedBox(height: 20),
           // Почта
           Text(
-            'example@email.com', // Замените на реальную почту пользователя
+            _userEmail ?? 'example@email.com', // Замените на реальную почту пользователя
             style: const TextStyle(fontSize: 18),
           ),
           const SizedBox(height: 10),
           // Кнопка подтверждения почты (отображается, если почта не подтверждена)
-          if (!isEmailVerified)
+          if (_authService.currentUser!.emailVerified == false)
             ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
                 // Обработка отправки запроса подтверждения почты
-                // Например, можно показать диалог с сообщением о том, что письмо отправлено
-                showDialog(
-                  context: context,
-                  builder: (context) => AlertDialog(
-                    title: const Text('Подтверждение почты'),
-                    content: const Text(
-                        'Письмо с подтверждением отправлено на ваш адрес.'),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: const Text('OK'),
-                      ),
-                    ],
-                  ),
-                );
+                try {
+                  await _authService.currentUser!.sendEmailVerification();
+                  // Показать диалог с сообщением о том, что письмо отправлено
+                  showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text('Подтверждение почты'),
+                      content: const Text(
+                          'Письмо с подтверждением отправлено на ваш адрес.'),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pushReplacement(
+                         context,
+                         MaterialPageRoute(
+                            builder:(context) => const LoginPage())),
+                       child: const Text('OK'),
+                        )
+                      ],
+                    ),
+                  );
+                } catch (e) {
+                  // Обработка ошибки
+                  print('Ошибка отправки письма: $e');
+                  showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text('Ошибка'),
+                      content: const Text('Не удалось отправить письмо.'),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text('OK'),
+                        )
+                      ],
+                    ),
+                  );
+                }
               },
               child: const Text('Подтвердить почту'),
             ),
           const SizedBox(height: 20),
           // Кнопка выхода из профиля
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
               // Обработка выхода из профиля
               // Например, можно перейти на страницу входа
+              await _authService.signOut();
               Navigator.pushReplacement(context,
                   MaterialPageRoute(builder: (context) {
                 return const LoginPage();
