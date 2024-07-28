@@ -3,24 +3,22 @@ import 'package:flutter/material.dart';
 
 import '../widgets/task_item.dart';
 
-class TaskPage extends StatefulWidget {
-  const TaskPage({Key? key}) : super(key: key);
+class ForTodayPage extends StatefulWidget {
+  const ForTodayPage({Key? key}) : super(key: key);
 
   @override
-  State<TaskPage> createState() => _TaskPageState();
+  State<ForTodayPage> createState() => _TaskPageState();
 }
 
-class _TaskPageState extends State<TaskPage> {
+class _TaskPageState extends State<ForTodayPage> {
   final CollectionReference tasksCollection =
       FirebaseFirestore.instance.collection('tasks');
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
-      stream: tasksCollection
-          .where('is_for_today', isEqualTo: false)
-          .where('completed', isEqualTo: false)
-          .snapshots(),
+      stream:
+          tasksCollection.where('is_for_today', isEqualTo: true).snapshots(),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return const Text('Ошибка при получении данных');
@@ -47,18 +45,19 @@ class _TaskPageState extends State<TaskPage> {
                 description: taskData['description'],
                 deadline: (taskData['deadline'] as Timestamp).toDate(),
                 toLeft: () {
-                  tasksCollection
-                      .doc(tasks[index].id)
-                      .update({'completed': true});
+                  tasksCollection.doc(tasks[index].id).update({
+                    'completed': false,
+                    'is_for_today': false,
+                  });
                 },
                 toRight: () {
                   tasksCollection
                       .doc(tasks[index].id)
-                      .update({'is_for_today': true});
+                      .update({'is_for_today': false, 'completed': true});
                 });
-          },
+          }
         );
-      },
+      }
     );
   }
 }

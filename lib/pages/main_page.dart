@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:zc_dodiddone/screens/all_tasks.dart';
+import '../screens/completed.dart';
+import '../screens/for_today.dart';
 import '../screens/profile_page.dart';
 import '../theme/theme.dart';
 import 'package:intl/intl.dart'; // Импортируем пакет для форматирования даты
@@ -17,8 +19,8 @@ class _MainPageState extends State<MainPage> {
 
   static const List<Widget> _widgetOptions = <Widget>[
     TaskPage(),
-    Text('Сегодня'),
-    Text('Выполнено'),
+    ForTodayPage(),
+    CompletedPage(),
     ProfilePage()
   ];
 
@@ -140,6 +142,8 @@ class _MainPageState extends State<MainPage> {
                             'title': title,
                             'description': description,
                             'deadline': Timestamp.fromDate(deadline),
+                            'completed': false,
+                            'is_for_today': false
                           }).then((value) {
                             
                           }).catchError((error) {

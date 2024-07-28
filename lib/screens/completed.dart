@@ -3,24 +3,21 @@ import 'package:flutter/material.dart';
 
 import '../widgets/task_item.dart';
 
-class TaskPage extends StatefulWidget {
-  const TaskPage({Key? key}) : super(key: key);
+class CompletedPage extends StatefulWidget {
+  const CompletedPage({Key? key}) : super(key: key);
 
   @override
-  State<TaskPage> createState() => _TaskPageState();
+  State<CompletedPage> createState() => _TaskPageState();
 }
 
-class _TaskPageState extends State<TaskPage> {
+class _TaskPageState extends State<CompletedPage> {
   final CollectionReference tasksCollection =
       FirebaseFirestore.instance.collection('tasks');
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
-      stream: tasksCollection
-          .where('is_for_today', isEqualTo: false)
-          .where('completed', isEqualTo: false)
-          .snapshots(),
+      stream: tasksCollection.where('completed', isEqualTo: true).snapshots(),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return const Text('Ошибка при получении данных');
@@ -49,16 +46,16 @@ class _TaskPageState extends State<TaskPage> {
                 toLeft: () {
                   tasksCollection
                       .doc(tasks[index].id)
-                      .update({'completed': true});
+                      .update({'is_for_today': true, 'completed': false});
                 },
                 toRight: () {
                   tasksCollection
                       .doc(tasks[index].id)
-                      .update({'is_for_today': true});
+                      .update({'is_for_today': false, 'completed': false});
                 });
-          },
+          }
         );
-      },
+      }
     );
   }
 }
