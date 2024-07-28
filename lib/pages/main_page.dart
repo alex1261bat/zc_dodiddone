@@ -4,8 +4,8 @@ import '../screens/completed.dart';
 import '../screens/for_today.dart';
 import '../screens/profile_page.dart';
 import '../theme/theme.dart';
-import 'package:intl/intl.dart'; // Импортируем пакет для форматирования даты
-import 'package:cloud_firestore/cloud_firestore.dart'; // Импортируем FirebaseFirestore
+
+import '../widgets/dialog_widget.dart'; // Импортируем FirebaseFirestore
 
 class MainPage extends StatefulWidget {
   const MainPage({Key? key}) : super(key: key);
@@ -42,123 +42,15 @@ class _MainPageState extends State<MainPage> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return Dialog(
-          // Устанавливаем ширину диалогового окна
-          insetPadding: const EdgeInsets.symmetric(horizontal: 16), // Отступ от краев экрана
-          child: Container(
-            width: 400, // Ширина диалогового окна
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: titleController,
-                  decoration: const InputDecoration(
-                    labelText: 'Название задачи',
-                  ),
-                ),
-                TextField(
-                  controller: descriptionController,
-                  decoration: const InputDecoration(
-                    labelText: 'Описание задачи',
-                  ),
-                ),
-                // Используем кнопку вместо текстового поля для дедлайна
-                Padding(
-                  padding: const EdgeInsets.only(top: 16), // Отступ сверху
-                  child: ElevatedButton(
-                    onPressed: () {
-                      // Открываем showDateTimePicker
-                      showDatePicker(
-                        context: context,
-                        initialDate: _selectedDateTime,
-                        firstDate: DateTime.now(),
-                        lastDate: DateTime.now().add(const Duration(days: 365)),
-                      ).then((pickedDate) {
-                        if (pickedDate != null) {
-                          // Если выбрана дата, открываем TimePicker
-                          showTimePicker(
-                            context: context,
-                            initialTime: TimeOfDay.fromDateTime(_selectedDateTime),
-                            // Устанавливаем формат времени в 24 часа
-                            builder: (context, child) {
-                              return MediaQuery(
-                                data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
-                                child: child!,
-                              );
-                            },
-                          ).then((pickedTime) {
-                            if (pickedTime != null) {
-                              setState(() {
-                                _selectedDateTime = DateTime(
-                                  pickedDate.year,
-                                  pickedDate.month,
-                                  pickedDate.day,
-                                  pickedTime.hour,
-                                  pickedTime.minute,
-                                );
-                              });
-                            }
-                          });
-                        }
-                      });
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: DoDidDoneTheme.lightTheme.colorScheme.secondary, // Цвет secondary
-                    ),
-                    child: Text(
-                      'Выбрать дедлайн ${DateFormat('dd.MM.yyyy HH:mm').format(DateTime.now())}', // Добавили текущую дату и время
-                      style: TextStyle(color: Colors.white), // Белый текст
-                    ),
-                  ),
-                ),
-                // Добавляем кнопки "Отмена" и "Добавить"
-                Padding(
-                  padding: const EdgeInsets.only(top: 20),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end, // Выравниваем кнопки справа
-                    children: [
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                        child: const Text('Отмена'),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          // Скрываем клавиатуру
-                          FocusScope.of(context).unfocus();
-                          // Закрываем диалоговое окно
-                          Navigator.pop(context);
-
-                          // Обработка добавления задачи
-                          // Используйте _selectedDateTime для получения выбранной даты и времени
-                          final title = titleController.text;
-                          final description = descriptionController.text;
-                          final deadline = _selectedDateTime;
-
-                          // Добавляем задачу в FirebaseFirestore
-                          FirebaseFirestore.instance.collection('tasks').add({
-                            'title': title,
-                            'description': description,
-                            'deadline': Timestamp.fromDate(deadline),
-                            'completed': false,
-                            'is_for_today': false
-                          }).then((value) {
-                            
-                          }).catchError((error) {
-                            // Обработка ошибки
-                            print('Ошибка при добавлении задачи: $error');
-                          });
-                        },
-                        child: const Text('Добавить'),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
+        return DialogWidget(
+          titleController: titleController,
+          descriptionController: descriptionController,
+          selectedDateTime: _selectedDateTime,
+          onDateTimeSelected: (DateTime dateTime) {
+            setState(() {
+              _selectedDateTime = dateTime;
+            });
+          },
         );
       },
     );

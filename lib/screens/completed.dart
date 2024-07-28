@@ -40,6 +40,7 @@ class _TaskPageState extends State<CompletedPage> {
           itemBuilder: (context, index) {
             final taskData = tasks[index].data() as Map<String, dynamic>;
             return TaskItem(
+                documentId: tasks[index].id,
                 title: taskData['title'],
                 description: taskData['description'],
                 deadline: (taskData['deadline'] as Timestamp).toDate(),

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart'; // Импортируем пакет для форматирования даты
+import 'package:cloud_firestore/cloud_firestore.dart'; // Импортируем FirebaseFirestore
 
 class TaskItem extends StatelessWidget {
   final String title;
   final String description;
   final DateTime deadline;
+  final String documentId; // Добавляем ID документа
   final Function? onDelete; // Добавляем функцию для удаления
   final Function? toLeft;
   final Function? toRight;
@@ -14,6 +16,7 @@ class TaskItem extends StatelessWidget {
     required this.title,
     required this.description,
     required this.deadline,
+    required this.documentId, // Передаем ID документа
     this.onDelete, 
     this.toLeft,
     this.toRight, 
@@ -105,8 +108,13 @@ class TaskItem extends StatelessWidget {
                       ),
                       IconButton(
                         onPressed: () {
-                          // Обработка нажатия на кнопку "Удалить"
-                          print('Удалить задачу: $title');
+                          // Удаление задачи из Firestore
+                          FirebaseFirestore.instance
+                              .collection('tasks')
+                              .doc(documentId)
+                              .delete()
+                              .then((value) => print('Задача удалена'))
+                              .catchError((error) => print('Ошибка при удалении: $error'));
                         },
                         icon: const Icon(Icons.delete),
                       ),
