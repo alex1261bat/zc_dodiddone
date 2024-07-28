@@ -3,6 +3,7 @@ import 'package:zc_dodiddone/screens/all_tasks.dart';
 import '../screens/profile_page.dart';
 import '../theme/theme.dart';
 import 'package:intl/intl.dart'; // Импортируем пакет для форматирования даты
+import 'package:cloud_firestore/cloud_firestore.dart'; // Импортируем FirebaseFirestore
 
 class MainPage extends StatefulWidget {
   const MainPage({Key? key}) : super(key: key);
@@ -32,6 +33,10 @@ class _MainPageState extends State<MainPage> {
 
   // Функция для открытия диалогового окна
   void _showAddTaskDialog() {
+    // Создаем контроллеры для текстовых полей
+    final titleController = TextEditingController();
+    final descriptionController = TextEditingController();
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -45,11 +50,13 @@ class _MainPageState extends State<MainPage> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 TextField(
+                  controller: titleController,
                   decoration: const InputDecoration(
                     labelText: 'Название задачи',
                   ),
                 ),
                 TextField(
+                  controller: descriptionController,
                   decoration: const InputDecoration(
                     labelText: 'Описание задачи',
                   ),
@@ -117,9 +124,28 @@ class _MainPageState extends State<MainPage> {
                       ),
                       TextButton(
                         onPressed: () {
+                          // Скрываем клавиатуру
+                          FocusScope.of(context).unfocus();
+                          // Закрываем диалоговое окно
+                          Navigator.pop(context);
+
                           // Обработка добавления задачи
                           // Используйте _selectedDateTime для получения выбранной даты и времени
-                          Navigator.of(context).pop();
+                          final title = titleController.text;
+                          final description = descriptionController.text;
+                          final deadline = _selectedDateTime;
+
+                          // Добавляем задачу в FirebaseFirestore
+                          FirebaseFirestore.instance.collection('tasks').add({
+                            'title': title,
+                            'description': description,
+                            'deadline': Timestamp.fromDate(deadline),
+                          }).then((value) {
+                            
+                          }).catchError((error) {
+                            // Обработка ошибки
+                            print('Ошибка при добавлении задачи: $error');
+                          });
                         },
                         child: const Text('Добавить'),
                       ),
