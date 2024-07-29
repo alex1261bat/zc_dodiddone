@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'edit_widget.dart'; // Импортируем FirebaseFirestore
 
+// ignore: must_be_immutable
 class TaskItem extends StatefulWidget {
   String title;
   String description;

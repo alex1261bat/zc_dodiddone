@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:zc_dodiddone/pages/profile_page.dart';
 import 'package:zc_dodiddone/screens/all_tasks.dart';
 import '../screens/completed.dart';
 import '../screens/for_today.dart';
-import '../screens/profile_page.dart';
 import '../theme/theme.dart';
 
 import '../widgets/dialog_widget.dart'; // Импортируем FirebaseFirestore
@@ -21,7 +21,7 @@ class _MainPageState extends State<MainPage> {
     TaskPage(),
     ForTodayPage(),
     CompletedPage(),
-    ProfilePage()
+    //ProfilePage()
   ];
 
   void _onItemTapped(int index) {
@@ -61,9 +61,16 @@ class _MainPageState extends State<MainPage> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0, // Убираем тень
-      ),
+          backgroundColor: Colors.transparent,
+          elevation: 0, // Убираем тень
+          actions: [
+            IconButton(
+                onPressed: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => const ProfilePage()));
+                },
+                icon: const Icon(Icons.person_2, color: Colors.white)),
+          ]),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -78,7 +85,7 @@ class _MainPageState extends State<MainPage> {
         ),
         child: Center(
           child: _selectedIndex == 3 // Проверяем, выбран ли профиль
-              ? const ProfilePage() // Если да, отображаем profile_page
+              ? ProfilePage() // Если да, отображаем profile_page
               : _widgetOptions.elementAt(_selectedIndex),
         ),
       ),
@@ -96,10 +103,10 @@ class _MainPageState extends State<MainPage> {
             icon: Icon(Icons.check_circle),
             label: 'Выполнено',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Профиль',
-          ),
+          // BottomNavigationBarItem(
+          //   icon: Icon(Icons.person),
+          //   label: 'Профиль',
+          // ),
         ],
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,

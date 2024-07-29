@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import '../pages/login_page.dart';
 import '../services/firebase_auth.dart'; // Импортируем AuthenticationService
 
-class ProfilePage extends StatefulWidget {
-  const ProfilePage({Key? key}) : super(key: key);
+class Profile extends StatefulWidget {
+  const Profile({super.key});
+  
   @override
-  State<ProfilePage> createState() => _ProfilePageState();
+  State<Profile> createState() => _ProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
+class _ProfilePageState extends State<Profile> {
   final AuthService _authService = AuthService(); // Создаем экземпляр сервиса
   String? _userEmail;
   String? _userPhotoUrl;
