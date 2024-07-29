@@ -1,31 +1,51 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart'; // Импортируем пакет для форматирования даты
-import 'package:cloud_firestore/cloud_firestore.dart'; // Импортируем FirebaseFirestore
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-class TaskItem extends StatelessWidget {
-  final String title;
-  final String description;
-  final DateTime deadline;
+import 'edit_widget.dart'; // Импортируем FirebaseFirestore
+
+class TaskItem extends StatefulWidget {
+  String title;
+  String description;
+  DateTime deadline;
   final String documentId; // Добавляем ID документа
-  final Function? onDelete; // Добавляем функцию для удаления
   final Function? toLeft;
   final Function? toRight;
 
-  const TaskItem({
+  TaskItem({
     Key? key,
     required this.title,
     required this.description,
     required this.deadline,
     required this.documentId, // Передаем ID документа
-    this.onDelete, 
     this.toLeft,
-    this.toRight, 
+    this.toRight,
   }) : super(key: key);
+
+  @override
+  State<TaskItem> createState() => _TaskItemState();
+}
+
+class _TaskItemState extends State<TaskItem> {
+  // Удалите эти строки:
+  // DateTime? get deadline => null;
+  // String? get title => null;
+  // get toLeft => null;
+  // get toRight => null;
+  // get documentId => null;
+  // get description => null;
+
+  // Функция для обновления задачи
+  void _updateTask(DateTime newDeadline) {
+    setState(() {
+      widget.deadline = newDeadline;
+    });
+  }
 
   // Функция для определения цвета градиента
   Color getGradientColor() {
     final now = DateTime.now();
-    final difference = deadline.difference(now);
+    final difference = widget.deadline.difference(now);
 
     if (difference.inDays <= 1) {
       return Colors.red; // Срочная задача
@@ -38,10 +58,10 @@ class TaskItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final formattedDeadline = DateFormat('dd.MM.yy HH:mm').format(deadline);
+    final formattedDeadline = DateFormat('dd.MM.yy HH:mm').format(widget.deadline);
 
     return Dismissible(
-      key: Key(title), // Устанавливаем уникальный ключ для Dismissible
+      key: Key(widget.title), // Устанавливаем уникальный ключ для Dismissible
       background: Container(
         color: Colors.green,
         child: const Align(
@@ -58,9 +78,9 @@ class TaskItem extends StatelessWidget {
       ),
       onDismissed: (direction) {
         if (direction == DismissDirection.endToStart) {
-          toLeft?.call(); //Вызываем функцию, если элемент был сдвинут влево
+          widget.toLeft?.call(); //Вызываем функцию, если элемент был сдвинут влево
         } else if (direction == DismissDirection.startToEnd) {
-          toRight?.call(); //Вызываем функцию, если элемент был сдвинут вправо
+          widget.toRight?.call(); //Вызываем функцию, если элемент был сдвинут вправо
         }
       },
       child: Card(
@@ -88,7 +108,7 @@ class TaskItem extends StatelessWidget {
                 children: [
                   Expanded(
                     child: Text(
-                      title,
+                      widget.title,
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -102,7 +122,31 @@ class TaskItem extends StatelessWidget {
                       IconButton(
                         onPressed: () {
                           // Обработка нажатия на кнопку "Редактировать"
-                          print('Редактировать задачу: $title');
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              final titleController =
+                                  TextEditingController(text: widget.title); // Инициализация titleController
+                              final descriptionController =
+                                  TextEditingController(text: widget.description); // Инициализация descriptionController
+                              DateTime _selectedDateTime = widget.deadline;
+
+                              return EditWidget(
+                                titleController: titleController,
+                                descriptionController: descriptionController,
+                                selectedDateTime: _selectedDateTime,
+                                onDateTimeSelected: (DateTime dateTime) {
+                                  setState(() {
+                                    _selectedDateTime = dateTime;
+                                  });
+                                },
+                                taskDocumentId: widget.documentId,
+                                initialTitle: widget.title, // Передача widget.title
+                                initialDescription: widget.description, // Передача widget.description
+                                initialDeadline: widget.deadline,
+                              );
+                            },
+                          );
                         },
                         icon: const Icon(Icons.edit),
                       ),
@@ -111,10 +155,11 @@ class TaskItem extends StatelessWidget {
                           // Удаление задачи из Firestore
                           FirebaseFirestore.instance
                               .collection('tasks')
-                              .doc(documentId)
+                              .doc(widget.documentId)
                               .delete()
                               .then((value) => print('Задача удалена'))
-                              .catchError((error) => print('Ошибка при удалении: $error'));
+                              .catchError((error) =>
+                                  print('Ошибка при удалении: $error'));
                         },
                         icon: const Icon(Icons.delete),
                       ),
@@ -131,7 +176,7 @@ class TaskItem extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    description,
+                    widget.description,
                     style: const TextStyle(fontSize: 16),
                   ), // Text
                   const SizedBox(height: 8),
